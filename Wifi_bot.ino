@@ -19,8 +19,8 @@
 #include <ESP8266WebServer.h>
 
 // SSID parameters
-const char *ssid = "";                      /*Set as your hotspot name.*/
-const char *password = "";                  /*set password.*/
+const char *ssid = "NodeMCU Hotspot";                      /*Set as your hotspot name.*/
+const char *password = "12345678*";                  /*set password.*/
 
 IPAddress ip(192, 168, 4, 1);               /* IP Address-Enter the same ip in the app.*/
 IPAddress netmask(255, 255, 255, 0);        /*Its like the address your device will search for , when it emits the signal.*/
@@ -45,10 +45,9 @@ void setup() {
 
    // Setup AP
   WiFi.mode(WIFI_AP); 
-  WiFi.softAPConfig(ip, ip, netmask);
   WiFi.softAP(ssid, password);
+  WiFi.softAPConfig(ip, ip, netmask);
 
-  
   // Declaration of motors
   pinMode(leftMotorForward, OUTPUT);
   pinMode(rightMotorForward, OUTPUT); 
@@ -57,11 +56,11 @@ void setup() {
 
 
   // Start Server
-  server.on("/", HTTP_GET, handleRoot);          /*Here / is the root page of the server.*/
+  server.on("/", HTTP_GET, onConnect);
+  server.on("/move", HTTP_GET, handleRequest);          /*Here / is the root page of the server.*/
   server.begin();
   
 }
-
 
 
 void loop() {
@@ -70,10 +69,17 @@ void loop() {
 
 }
 
+void onConnect(){
+  Serial.println("Connected!");
+  server.send(200, "text / plain", "Successful");  
+}
 
-void handleRoot() {
-  if (server.hasArg("State")) {             /*Checking whether the data sent by the device contains the argument "State".*/
-    String value = server.arg("State");     /*Value is a String which stores the argument sent by the device connected to network.*/
+void handleRequest() {
+  Serial.println("Connected!");
+  
+  if (server.hasArg("dir")) {             /*Checking whether the data sent by the device contains the argument "State".*/
+    
+    String value = server.arg("dir");     /*Value is a String which stores the argument sent by the device connected to network.*/
     Serial.println("Value = " + value);
     server.send(200, "text / plain", "Request received");   /*Send a confirmation to the device that their data has been recieved.*/
 
